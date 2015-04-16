@@ -1,6 +1,12 @@
 # coding:utf-8
 import util
 import record
+import sys
+
+if hasattr(sys, 'setdefaultencoding'):
+    sys.setdefaultencoding('utf-8')
+else:
+    print >> sys.stderr, "sys hasn't setdefaultencoding"
 
 __author__ = 'micky'
 
@@ -27,11 +33,8 @@ class TransactionLooper(util.InputLooper):
 
     def onFinish(self):
         self.__buf_q.sort()
-        with open(self.__file_path, "a") as f:
-            for buf in self.__buf_q:
-                # assert isinstance(buf, str)
-                print >> f, buf
-            f.flush()
+        with open(self.__file_path, "r") as f:
+            util.merge(self.__buf_q, f, self.__file_path, "T")
 
 
 def main():

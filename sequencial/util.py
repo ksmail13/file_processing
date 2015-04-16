@@ -102,23 +102,36 @@ def merge(mem_q, file, new_file_name, merge_type):
     :return:
     """
     assert(mem_q, list)
-    os.rename(file.name, "temp.dat")
     mem_q.sort()
-    record_type = None
+    record_type = record.TransactionRecord
     index = 0
 
-    if merge_type == 'T':
-        record_type = record.TransactionRecord
-    else:
-        record_type = record.Record
-
-    with open(new_file_name, "w") as new_file:
+    with open("temp.dat", "w") as new_file:
         buf = file.readline()
+        f_record = record_type.generate(buf)
+        m_record = record_type.generate(mem_q[index])
         while True:
-            f_record = record_type.generate(buf)
-            if f_record >= mem_q[index]:
+            # 파일에 있는 기존 레코드의 id값이 입력받은 것보다 크거나 같으면
+            # 메모리에 저장되어 있는 것을 먼저 저장하고 메모리의 인덱스를 하나 증가시킨다.
+            if f_record >= m_record:
                 new_file.write(mem_q[index])
                 index += 1
+
+                if len(mem_q) == index:
+                    for line in file:
+                        print >> new_file, line
+
+                    break
+                else:
+                    m_record = record_type.generate(mem_q[index])
             else:
-                new_file.write(buf)
-                buf = file.readline()
+                # 파일의 것이 더 크면 파일 먼저 저장하고 한번더 읽는다.
+                print >> new_file, buf
+                try:
+                    f_record = record_type.generate(file.readline())
+                except EOFError:
+                    # 파일의 끝이면 남은 큐의 인덱스 만큼 저장하고
+                    while index < len(mem_q):
+                        print >> new_file, mem_q[index]
+                        index += 1
+                    break

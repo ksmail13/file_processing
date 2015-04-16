@@ -20,7 +20,6 @@ class MasterMakerLooper(util.InputLooper):
             self.__buf_q.append(buf)
 
     def onFinish(self):
-        self.__buf_q.sort()
         with open(self.__file_path, "a") as f:
             for buf in self.__buf_q:
                 assert isinstance(buf, str)
