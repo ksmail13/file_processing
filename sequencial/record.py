@@ -4,9 +4,11 @@
 
 __author__ = 'micky'
 
+
 class Record(object):
 
-    class __RecordIndex(object):
+
+    class RecordIndex(object):
         ID = 0
         NAME = 1
         ADDR = 2
@@ -21,11 +23,11 @@ class Record(object):
         :return: 레코드
         """
         buf = buf.split(' ')
-        return Record(buf[Record.__RecordIndex.ID]
-                      , buf[Record.__RecordIndex.NAME]
-                      , "".join((n+" " for n in buf[Record.__RecordIndex.NAME+1:Record.__RecordIndex.PHONE_NUM]))
-                      , buf[Record.__RecordIndex.PHONE_NUM]
-                      , buf[Record.__RecordIndex.SEX])
+        return Record(buf[Record.RecordIndex.ID]
+                      , buf[Record.RecordIndex.NAME]
+                      , "".join((n+" " for n in buf[Record.RecordIndex.NAME+1:Record.RecordIndex.PHONE_NUM]))
+                      , buf[Record.RecordIndex.PHONE_NUM]
+                      , buf[Record.RecordIndex.SEX])
 
     def __init__(self, id, name, addr, phone_num, sex):
 
@@ -88,11 +90,11 @@ class TransactionRecord(Record):
         :return:
         """
         buf = buf.split(' ')
-        new_record = TransactionRecord(buf[1+Record.__RecordIndex.ID]
-                      , buf[1+Record.__RecordIndex.NAME]
-                      , "".join((n+" " for n in buf[1+Record.__RecordIndex.ADDR:Record.__RecordIndex.PHONE_NUM]))
-                      , buf[Record.__RecordIndex.PHONE_NUM]
-                      , buf[Record.__RecordIndex.SEX])
+        new_record = TransactionRecord(buf[1+TransactionRecord.RecordIndex.ID]
+                      , buf[1+TransactionRecord.RecordIndex.NAME]
+                      , "".join((n+" " for n in buf[1+TransactionRecord.RecordIndex.ADDR:TransactionRecord.RecordIndex.PHONE_NUM]))
+                      , buf[TransactionRecord.RecordIndex.PHONE_NUM]
+                      , buf[TransactionRecord.RecordIndex.SEX])
         new_record.operation = buf[0]
 
         return new_record

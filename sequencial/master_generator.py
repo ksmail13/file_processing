@@ -16,12 +16,16 @@ class MasterMakerLooper(util.InputLooper):
         self.__id = 0
 
     def onInput(self, buf):
-        self.__buf_q.append(buf)
+        if len(buf.strip()) > 0:
+            self.__buf_q.append(buf)
 
     def onFinish(self):
-        with open(self.__file_path, "w") as f:
+        self.__buf_q.sort()
+        with open(self.__file_path, "a") as f:
             for buf in self.__buf_q:
-                f.write(buf.join('\n'))
+                assert isinstance(buf, str)
+                print >> f, buf
+            f.flush()
 
 
 def main():
@@ -31,7 +35,7 @@ def main():
     prologue += "ps. id is auto generate"
 
     loop = MasterMakerLooper(prologue)
-    loop(logging = True)
+    loop(logging=True)
 
 if __name__ == "__main__":
     main()

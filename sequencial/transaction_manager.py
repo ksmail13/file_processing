@@ -1,5 +1,6 @@
 # coding:utf-8
 import util
+import record
 
 __author__ = 'micky'
 
@@ -20,12 +21,15 @@ class TransactionLooper(util.InputLooper):
         self.__buf_q = []
 
     def onInput(self, buf):
-        self.__buf_q.append(buf)
+        if len(buf.strip()) > 0:
+            new_record = record.TransactionRecord.generate(buf)
+            self.__buf_q.append(new_record)
 
     def onFinish(self):
+        self.__buf_q.sort()
         with open(self.__file_path, "a") as f:
             for buf in self.__buf_q:
-                assert isinstance(buf, str)
+                # assert isinstance(buf, str)
                 print >> f, buf
             f.flush()
 
