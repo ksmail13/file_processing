@@ -34,7 +34,26 @@ class TransactionLooper(util.InputLooper):
     def onFinish(self):
         self.__buf_q.sort()
         with open(self.__file_path, "r") as f:
-            util.merge(self.__buf_q, f, self.__file_path, "T")
+            merge(self.__buf_q, f, self.__file_path)
+
+
+def merge(mem_q, file):
+    """
+    입력된 트랜젝션과 기존 트랜젝션파일을 합친다.
+    :param mem_q: 입력된 레코드
+    :param file: 트랜젝션 파일
+    :return:
+    """
+    assert(mem_q, list)
+    mem_q.sort()
+    record_type = record.TransactionRecord
+    index = 0
+
+    with open("temp.dat", "w") as new_file:
+        buf = file.readline()
+        f_record = record_type.generate(buf)
+        m_record = record_type.generate(mem_q[index])
+        
 
 
 def main():

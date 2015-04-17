@@ -92,46 +92,18 @@ class MutableString(object):
         self.append(other)
 
 
-def merge(mem_q, file, new_file_name, merge_type):
+def record_merge(f, r1, r2):
     """
-    메모리에 있는 레코드와 파일의 레코드를 합친다.
-    새 파일을 만들어 저장하고 기존 파일은 삭제한다.
-    :param mem_q: 메모리에 있는 레코드
-    :param file: 레코드가 있는 파일
-    :param merge_type: 트랜잭션에 대한 머지인지 마스터/ 트랜젝션에 대한 머지인지 판별
-    :return:
+    레코드를 비교해 더 빠른 순서의 레코드를 파일에 저장한다.
+    :param f: 저장할 파일
+    :param r1: 비교할 레코드1
+    :param r2: 비교할 레코드2
+    :return: 저장된 레코드
     """
-    assert(mem_q, list)
-    mem_q.sort()
-    record_type = record.TransactionRecord
-    index = 0
 
-    with open("temp.dat", "w") as new_file:
-        buf = file.readline()
-        f_record = record_type.generate(buf)
-        m_record = record_type.generate(mem_q[index])
-        while True:
-            # 파일에 있는 기존 레코드의 id값이 입력받은 것보다 크거나 같으면
-            # 메모리에 저장되어 있는 것을 먼저 저장하고 메모리의 인덱스를 하나 증가시킨다.
-            if f_record >= m_record:
-                new_file.write(mem_q[index])
-                index += 1
-
-                if len(mem_q) == index:
-                    for line in file:
-                        print >> new_file, line
-
-                    break
-                else:
-                    m_record = record_type.generate(mem_q[index])
-            else:
-                # 파일의 것이 더 크면 파일 먼저 저장하고 한번더 읽는다.
-                print >> new_file, buf
-                try:
-                    f_record = record_type.generate(file.readline())
-                except EOFError:
-                    # 파일의 끝이면 남은 큐의 인덱스 만큼 저장하고
-                    while index < len(mem_q):
-                        print >> new_file, mem_q[index]
-                        index += 1
-                    break
+    if isinstance(r1, Record) and isinstance(r2, Record):
+        min_r = min(r1, r2)
+        print >> f, min_r
+        return min_r
+    else:
+        raise TypeError("r1, r2 must Record instance")
