@@ -7,12 +7,13 @@ import collections
 import os
 import record
 
+
 class InputLooper(object):
     """
     입력을 받으며 계속 루프를 도는 functor
     """
 
-    def __init__(self, prologue = "main loop", prompt = ">"):
+    def __init__(self, prologue="main loop", prompt=">"):
         self.prologue = prologue
         self.prompt = prompt
 
@@ -101,7 +102,7 @@ def record_merge(f, r1, r2):
     :return: 저장된 레코드
     """
 
-    if isinstance(r1, Record) and isinstance(r2, Record):
+    if isinstance(r1, record.Record) and isinstance(r2, record.Record):
         min_r = min(r1, r2)
         print >> f, min_r
         return min_r

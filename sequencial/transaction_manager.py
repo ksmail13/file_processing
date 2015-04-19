@@ -2,6 +2,7 @@
 import util
 import record
 import sys
+import os
 
 if hasattr(sys, 'setdefaultencoding'):
     sys.setdefaultencoding('utf-8')
@@ -33,15 +34,20 @@ class TransactionLooper(util.InputLooper):
 
     def onFinish(self):
         self.__buf_q.sort()
-        with open(self.__file_path, "r") as f:
-            merge(self.__buf_q, f, self.__file_path)
+        try:
+            with open(self.__file_path, "r") as f:
+                merge(self.__buf_q, f)
+        except IOError:
+            with open(self.__file_path, "w") as f:
+                for rec in self.__buf_q:
+                    print >> f, rec
 
 
-def merge(mem_q, file):
+def merge(mem_q, origin_file):
     """
     입력된 트랜젝션과 기존 트랜젝션파일을 합친다.
     :param mem_q: 입력된 레코드
-    :param file: 트랜젝션 파일
+    :param origin_file: 트랜젝션 파일
     :return:
     """
     assert(mem_q, list)
@@ -50,10 +56,27 @@ def merge(mem_q, file):
     index = 0
 
     with open("temp.dat", "w") as new_file:
-        buf = file.readline()
-        f_record = record_type.generate(buf)
-        m_record = record_type.generate(mem_q[index])
-        
+        buf = origin_file.readline()
+
+        while True:
+            f_record = record_type.generate(buf)
+            m_record = record_type.generate(mem_q[index])
+            if util.record_merge(new_file, f_record, m_record) == f_record:
+                # 기존파일의 레코드가 저장되면 파일을 다시 불러온다.
+                try:
+                    buf = origin_file.readline()
+                except EOFError:
+                    for i in xrange(index, len(mem_q)):
+                        print >> new_file, record_type.generate(mem_q[i])
+            else:
+                # 입력받은 레코드가 저장되면 레코드의 인덱스를 가르킨다.
+                index += 1
+                if len(mem_q) == index:
+                    for line in origin_file:
+                        print >> new_file, record_type.generate(line)
+    name = origin_file.name
+    os.unlink(name)
+    os.rename("temp.dat", name)
 
 
 def main():
