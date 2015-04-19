@@ -10,7 +10,7 @@ import record
 
 class InputLooper(object):
     """
-    입력을 받으며 계속 루프를 도는 functor
+    입력을 받으며 계속 루프를 도는 function object
     """
 
     def __init__(self, prologue="main loop", prompt=">"):
@@ -25,26 +25,26 @@ class InputLooper(object):
         print self.prologue
         try:
             while True:
-                str = raw_input(self.prompt)
-                if kwargs.has_key("logging") and kwargs["logging"]:
-                    print str
+                in_str = raw_input(self.prompt)
+                if "logging" in kwargs and kwargs["logging"]:
+                    print in_str
 
-                self.onInput(str)
+                self.on_input(in_str)
         except EOFError:
             pass
         except KeyboardInterrupt:
             pass
         finally:
-            self.onFinish()
+            self.on_finish()
 
-    def onInput(self, buf):
+    def on_input(self, buf):
         """
         입력이 들어 왔을 때의 작업
         :param buf : 입력
         """
         raise NotImplementedError
 
-    def onFinish(self):
+    def on_finish(self):
         """
         입력이 끝나고 EOF가 들어왔을 때의 작업
         """
@@ -78,15 +78,15 @@ class MutableString(object):
             self.__data.append(data)
 
     def __getitem__(self, item):
-        assert(item, int)
+        assert type(item) == int
         return self.__data[item]
 
     def __setitem__(self, key, value):
-        assert(key, int)
+        assert type(key) == int
         self.__data[key] = value
 
     def __delitem__(self, key):
-        assert(key, int)
+        assert type(key) == int
         del self.__data[key]
 
     def __add__(self, other):

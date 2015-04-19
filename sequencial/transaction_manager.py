@@ -27,12 +27,12 @@ class TransactionLooper(util.InputLooper):
         self.__file_path = file_path
         self.__buf_q = []
 
-    def onInput(self, buf):
+    def on_input(self, buf):
         if len(buf.strip()) > 0:
             new_record = record.TransactionRecord.generate(buf)
             self.__buf_q.append(new_record)
 
-    def onFinish(self):
+    def on_finish(self):
         self.__buf_q.sort()
         try:
             with open(self.__file_path, "r") as f:
@@ -51,7 +51,6 @@ def merge(mem_q, origin_file):
     :return:
     """
     assert(mem_q, list)
-    mem_q.sort()
     record_type = record.TransactionRecord
     index = 0
 
@@ -74,6 +73,7 @@ def merge(mem_q, origin_file):
                 if len(mem_q) == index:
                     for line in origin_file:
                         print >> new_file, record_type.generate(line)
+
     name = origin_file.name
     os.unlink(name)
     os.rename("temp.dat", name)
