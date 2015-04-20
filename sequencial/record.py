@@ -74,7 +74,6 @@ class Record(object):
 
     def __eq__(self, other):
         if isinstance(other, Record):
-            print self.id, other.id, self.id == other.id
             return self.id == other.id
         else:
             return False
@@ -116,3 +115,25 @@ class TransactionRecord(Record):
 
     def __str__(self):
         return self.operation + " " + super(TransactionRecord, self).__str__()
+
+
+def record_reader(record_type, file_path, mode="r"):
+    """
+    파일에서 레코드를 읽는 생성기를 생성한다.
+    :param record_type: 읽는 레코드의 클래스 타입
+    :param file_path: 읽는 파일의 경로
+    :param mode: 파일 open모드
+    :return: 파일에서 레코드를 읽어서 리턴하는 생성기
+    :raise stopIteration:  모든 파일을 다 읽었을 때
+    """
+
+    def read():
+        """
+        파일에서 레코드를 읽어서 리턴하는 생성기
+        :return : record
+        """
+        with open(file_path, mode) as f:
+            for buf in f:
+                yield record_type.generate(buf)
+
+    return read()

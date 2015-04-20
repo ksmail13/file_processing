@@ -1,6 +1,6 @@
 # coding:utf-8
 import util
-from record import Record, TransactionRecord
+from record import Record, TransactionRecord, record_reader
 from datetime import datetime
 import sys
 import optparse
@@ -138,6 +138,151 @@ def master_update(master_path, transaction_path, backup):
         with open(transaction_path, "r") as transaction:
             merge("master_{}.dat".format(datetime.now().strftime("%y%m%d%H%M%S")))
 
+delete_err_msg = lambda x: "Delete fail : id[{}] is not exist".format(x.id)
+update_err_msg = lambda x: "Update fail : id[{}] is not exist".format(x.id)
+add_err_msg = lambda x: "Add fail : id[{}] is exist".format(x.id)
+
+
+class MasterUpdate(object):
+
+    def __init__(self, master_path, transaction_path, backup=True):
+        self.master_path = master_path
+        self.transaction_path = transaction_path
+        self.is_backup = backup
+
+        self.new_file = open("temp.dat", "w")
+        self.error_file = open("error.dat", "w")
+        self.is_closed = False
+        # 마지막에 적용된 아이디
+        self.last_id = -1
+
+    def merge(self):
+        master_gen = record_reader(Record, self.master_path)
+        transaction_gen = record_reader(TransactionRecord, self.transaction_path)
+
+        m_r = master_gen.next()
+        t_r = transaction_gen.next()
+
+        while True:
+            operator = self.get_transaction_operator(t_r.operation)
+
+            if operator(m_r, t_r) >= 0:
+                try:
+                    t_r = transaction_gen.next()
+                except StopIteration:
+                    for other_r in master_gen:
+                        print >> self.new_file, other_r
+                    break
+            else:
+                try:
+                    m_r = master_gen.next()
+                except StopIteration:
+                    if t_r.operation == 'A':
+                        print >> self.new_file, t_r.record_str()
+                    for other_r in transaction_gen:
+                        if other_r.operation == 'A':
+                            print >> self.new_file, other_r.record_str()
+                        else:
+                            error_msg = (update_err_msg if other_r.operation == 'U' else delete_err_msg)
+                            print >> self.error_file, error_msg(other_r)
+                    break
+
+        if self.is_backup:
+            temp = os.path.splitext(self.master_path)
+            old_master_name = temp[0]+"_"+datetime.now().strftime("%y%m%d%H%M%S")+temp[1]
+            os.rename(self.master_path, old_master_name)
+            os.rename("temp.dat", self.master_path)
+
+        self.close()
+
+    def close(self):
+        self.new_file.close()
+        self.error_file.close()
+        self.is_closed = True
+
+    def __del__(self):
+        if self.is_closed is False:
+            self.close()
+
+    def get_transaction_operator(self, operator):
+        """
+        각 연산자 함수를 리턴한다.
+        :param operator:
+        :return:
+        """
+        return self.add if operator == 'A' else self.update if operator == 'U' else self.delete
+
+    def add(self, m_r, t_r):
+        """
+        transaction의 add연산을 수행한다.
+        :param m_r:
+        :param t_r:
+        :return: -1 : 마스터가 트랜젝션 레코드보다 작다(마스터를 읽는다)
+                  0 : 이상 없음(트랜잭션을 읽는다)
+                  1 : 중복되는 레코드가 있다.(트랜젝션을 읽는다)
+        """
+        if m_r < t_r:
+            # 마스터가 트랜젝션보다 작으면 마스터를 파일에 입력한다.
+            if m_r.id != self.last_id:
+                print >> self.new_file, m_r
+                self.last_id = m_r.id
+            return -1
+        elif m_r == t_r:
+            # 마스터가 트랜젝션과 같으면 에러 메시지를 출력하고 종료한다.
+            print >> self.error_file, add_err_msg(t_r)
+            return 1
+        else:
+            # 마스터가 트랜젝션 보다 크면 트랜젝션을 파일에 입력한다.
+            print >> self.new_file, t_r.record_str()
+            self.last_id = t_r.id
+            return 0
+
+    def update(self, m_r, t_r):
+        """
+        transaction의 update연산을 수행한다.
+        :param m_r:
+        :param t_r:
+        :return: -1 : 마스터가 트랜젝션 레코드보다 작다(마스터를 읽는다)
+                  0 : 이상 없음(트랜잭션을 읽는다)
+                  1 : 중복되는 레코드가 있다.(트랜젝션을 읽는다)
+        """
+        if m_r < t_r:
+            # 마스터가 트랜젝션보다 작으면 마스터를 파일에 입력한다.
+            print >> self.new_file, m_r
+            self.last_id = m_r.id
+            return -1
+        elif m_r == t_r:
+            # 마스터가 트랜젝션과 같으면 트랜젝션을 파일에 입력한다.
+            print >> self.new_file, t_r.record_str()
+            self.last_id = t_r.id
+            return 0
+        else:
+            # 마스터가 트랜젝션보다 크면 에러메시지를 출력한다.(업데이트할 데이터가 없다)
+            print >> self.error_file, update_err_msg(t_r)
+            return 1
+
+    def delete(self,  m_r, t_r):
+        """
+        transaction의 update연산을 수행한다.
+        :param m_r:
+        :param t_r:
+        :return: -1 : 마스터가 트랜젝션 레코드보다 작다(마스터를 읽는다)
+                  0 : 이상 없음(트랜잭션을 읽는다)
+                  1 : 중복되는 레코드가 있다.(트랜젝션을 읽는다)
+        """
+        if m_r < t_r:
+            # 마스터가 트랜젝션보다 작으면 마스터를 파일에 입력한다.
+            print >> self.new_file, m_r
+            self.last_id = m_r.id
+            return -1
+        elif m_r == t_r:
+            # 마스터가 트랜젝션과 같으면 아무일도 하지 않는다.
+            return 0
+        else:
+            # 마스터가 트랜젝션보다 크면 에러메시지를 출력한다.(삭제할 데이터가 없다)
+            print >> self.error_file, delete_err_msg(t_r)
+            return 1
+
 
 def main():
     param = optparse.OptionParser()
@@ -148,8 +293,9 @@ def main():
     param.set_default("backup", True)
     (options, args) = param.parse_args()
 
-    master_update("master.dat", "transact.dat", options.backup)
-
+    # master_update("master.dat", "transact.dat", options.backup)
+    updater = MasterUpdate("master.dat", "transact.dat", options.backup)
+    updater.merge()
 
 if __name__ == "__main__":
     main()
