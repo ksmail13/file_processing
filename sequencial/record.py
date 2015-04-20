@@ -20,19 +20,22 @@ class Record(object):
         :param buf: 레코드의 데이터가 있는 문자열
         :return: 레코드
         """
-        buf = buf.split(' ')
+        if len(buf.strip()) == 0:
+            return None
+        buf = [attr.strip() for attr in buf.split(' ')]
+
         if r_id == -1:
             return Record(int(buf[Record.RecordIndex.ID])
                           , buf[Record.RecordIndex.NAME]
-                          , "".join((n + " " for n in buf[Record.RecordIndex.ADDRESS-1:Record.RecordIndex.PHONE_NUM]))
+                          , "".join((n + " " for n in buf[Record.RecordIndex.ADDRESS:Record.RecordIndex.PHONE_NUM]))
                           , buf[Record.RecordIndex.PHONE_NUM]
-                          , buf[Record.RecordIndex.SEX])
+                          , buf[Record.RecordIndex.SEX].strip())
         else:
             return Record(r_id
                           , buf[Record.RecordIndex.NAME-1]
                           , "".join((n + " " for n in buf[Record.RecordIndex.ADDRESS-1:Record.RecordIndex.PHONE_NUM]))
                           , buf[Record.RecordIndex.PHONE_NUM]
-                          , buf[Record.RecordIndex.SEX])
+                          , buf[Record.RecordIndex.SEX].strip())
 
     def __init__(self, r_id, name, address, phone_num, sex):
 
@@ -71,6 +74,7 @@ class Record(object):
 
     def __eq__(self, other):
         if isinstance(other, Record):
+            print self.id, other.id, self.id == other.id
             return self.id == other.id
         else:
             return False
@@ -94,13 +98,15 @@ class TransactionRecord(Record):
         :param buf:
         :return:
         """
-        buf = buf.split(' ')
-        new_record = TransactionRecord(buf[1 + TransactionRecord.RecordIndex.ID]
+        if len(buf.strip()) == 0:
+            return None
+        buf = [attr.strip() for attr in buf.split(' ')]
+        new_record = TransactionRecord(int(buf[1 + TransactionRecord.RecordIndex.ID])
                                        , buf[1 + TransactionRecord.RecordIndex.NAME]
                                        , "".join((n + " " for n in buf[
                                                                    1 + TransactionRecord.RecordIndex.ADDRESS:TransactionRecord.RecordIndex.PHONE_NUM]))
                                        , buf[TransactionRecord.RecordIndex.PHONE_NUM]
-                                       , buf[TransactionRecord.RecordIndex.SEX])
+                                       , buf[TransactionRecord.RecordIndex.SEX].strip())
         new_record.operation = buf[0]
 
         return new_record

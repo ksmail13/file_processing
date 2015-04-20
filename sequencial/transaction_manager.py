@@ -7,7 +7,8 @@ import os
 if hasattr(sys, 'setdefaultencoding'):
     sys.setdefaultencoding('utf-8')
 else:
-    print >> sys.stderr, "sys hasn't setdefaultencoding"
+    # print >> sys.stderr, "sys hasn't setdefaultencoding"
+    pass
 
 __author__ = 'micky'
 
@@ -50,7 +51,7 @@ def merge(mem_q, origin_file):
     :param origin_file: 트랜젝션 파일
     :return:
     """
-    assert(mem_q, list)
+    assert type(mem_q) == list
     record_type = record.TransactionRecord
     index = 0
 
@@ -59,20 +60,24 @@ def merge(mem_q, origin_file):
 
         while True:
             f_record = record_type.generate(buf)
-            m_record = record_type.generate(mem_q[index])
+            m_record = mem_q[index]
             if util.record_merge(new_file, f_record, m_record) == f_record:
                 # 기존파일의 레코드가 저장되면 파일을 다시 불러온다.
                 try:
                     buf = origin_file.readline()
+                    if origin_file.tell() == os.fstat(origin_file.fileno()).st_size:
+                        raise EOFError
                 except EOFError:
                     for i in xrange(index, len(mem_q)):
-                        print >> new_file, record_type.generate(mem_q[i])
+                        print >> new_file, mem_q[i]
+                    break
             else:
                 # 입력받은 레코드가 저장되면 레코드의 인덱스를 가르킨다.
                 index += 1
                 if len(mem_q) == index:
                     for line in origin_file:
                         print >> new_file, record_type.generate(line)
+                    break
 
     name = origin_file.name
     os.unlink(name)
