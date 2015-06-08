@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="FileProcessing.ExtendsHash.Bucket&lt;T&gt;">
+    <Position X="11.5" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAIEAAAAQAAIKAAAAQEAAAAgABABIAAAAAAAAAAA=</HashCode>
+      <FileName>Bucket.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FileProcessing.ExtendsHash.Document&lt;T&gt;">
+    <Position X="9.75" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAAgAEAAQAAAgAIAAAAAAAAgAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Document.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FileProcessing.Util">
+    <Position X="6.25" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAIAAAAAAAAA=</HashCode>
+      <FileName>Util.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FileProcessing.ExtendHashMain">
+    <Position X="8" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAACBAAAAAAAAAAAAEAAAABAAAAAA=</HashCode>
+      <FileName>Main.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="FileProcessing.ExtendsHash.Record">
+    <Position X="8" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEkAAAAAAAAAIEAIAgAAAAAAAAIiA=</HashCode>
+      <FileName>Record.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Enum Name="FileProcessing.ExtendsHash.BucketOperationResult">
+    <Position X="3.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAAEAAAAAAAAAAAAAAAAAAAAAAAAAEAAQAAA=</HashCode>
+      <FileName>BucketOperationResult.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="맑은 고딕" Size="9" />
+</ClassDiagram>
