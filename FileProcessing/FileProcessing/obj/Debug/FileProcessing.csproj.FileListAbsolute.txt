@@ -3,3 +3,6 @@ C:\Users\민규\documents\visual studio 2015\Projects\FileProcessing\FileProcess
 C:\Users\민규\documents\visual studio 2015\Projects\FileProcessing\FileProcessing\bin\Debug\FileProcessing.pdb
 C:\Users\민규\documents\visual studio 2015\Projects\FileProcessing\FileProcessing\obj\Debug\FileProcessing.exe
 C:\Users\민규\documents\visual studio 2015\Projects\FileProcessing\FileProcessing\obj\Debug\FileProcessing.pdb
+C:\Users\민규\Documents\file_processing\FileProcessing\FileProcessing\bin\Debug\FileProcessing.exe.config
+C:\Users\민규\Documents\file_processing\FileProcessing\FileProcessing\obj\Debug\FileProcessing.exe
+C:\Users\민규\Documents\file_processing\FileProcessing\FileProcessing\obj\Debug\FileProcessing.pdb
